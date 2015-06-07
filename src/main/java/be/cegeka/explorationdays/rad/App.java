@@ -1,5 +1,6 @@
 package be.cegeka.explorationdays.rad;
 
+import be.cegeka.explorationdays.rad.resources.MessageResource;
 import io.dropwizard.Application;
 import io.dropwizard.Configuration;
 import io.dropwizard.setup.Environment;
@@ -18,8 +19,6 @@ public class App extends Application<MessagewallConfiguration>
     @Override
     public void run(MessagewallConfiguration configuration, Environment environment) throws Exception {
         LOGGER.info("Method App#run() called");
-        for (int i=0; i < configuration.getMessageRepetitions(); i++) {
-            System.out.println(configuration.getMessage());
-        }
+        environment.jersey().register(new MessageResource());
     }
 }
