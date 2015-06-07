@@ -1,5 +1,7 @@
 package be.cegeka.explorationdays.rad.resources;
 
+import be.cegeka.explorationdays.rad.representations.Message;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -12,12 +14,12 @@ public class MessageResource {
     @Path("/{id}")
     public Response getMessage(@PathParam("id") int id) {
         return Response
-                .ok("{message_id: " + id + ", message: \"Dummy message\"}")
+                .ok(new Message(id, "dummy message"))
                 .build();
     }
 
     @POST
-    public Response createMessage(@FormParam("name") String name) {
+    public Response createMessage(Message message) {
         return Response.created(null).build();
     }
 
@@ -33,9 +35,9 @@ public class MessageResource {
     @Path("/{id}")
     public Response updateMessage(
             @PathParam("id") int id,
-            @FormParam("message") String message) {
+            Message message) {
         return Response
-                .ok("{message_id: " + id + ", message: \"" + message + "\"}")
+                .ok(message)
                 .build();
     }
 
