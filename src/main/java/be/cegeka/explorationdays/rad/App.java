@@ -2,8 +2,9 @@ package be.cegeka.explorationdays.rad;
 
 import be.cegeka.explorationdays.rad.resources.MessageResource;
 import io.dropwizard.Application;
-import io.dropwizard.Configuration;
+import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.setup.Environment;
+import org.skife.jdbi.v2.DBI;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -19,6 +20,8 @@ public class App extends Application<MessagewallConfiguration>
     @Override
     public void run(MessagewallConfiguration configuration, Environment environment) throws Exception {
         LOGGER.info("Method App#run() called");
-        environment.jersey().register(new MessageResource());
+        final DBIFactory factory = new DBIFactory();
+        final DBI jdbi = factory.build(environment, configuration.getDatabase(), "mysql");
+        environment.jersey().register(new MessageResource(jdbi));
     }
 }

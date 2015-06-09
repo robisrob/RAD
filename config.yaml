@@ -1,2 +1,5 @@
-message: This is a message defined in the configuration file config.yaml
-messageRepetitions: 3
+database:
+  driverClass: com.mysql.jdbc.Driver
+  user: messagewalluser
+  password: messagewallpassword
+  url: jdbc:mysql://localhost/messagewall
