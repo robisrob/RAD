@@ -4,20 +4,28 @@ import be.cegeka.explorationdays.rad.dao.MessageDAO;
 import be.cegeka.explorationdays.rad.representations.Message;
 import org.skife.jdbi.v2.DBI;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Valid;
+import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Path("/message")
 @Produces(MediaType.APPLICATION_JSON)
 public class MessageResource {
 
     private final MessageDAO messageDAO;
+    private final Validator validator;
 
-    public MessageResource(DBI jdbi) {
+    public MessageResource(DBI jdbi, Validator validator) {
         this.messageDAO = jdbi.onDemand(MessageDAO.class);
+        this.validator = validator;
     }
 
     @GET
@@ -30,7 +38,7 @@ public class MessageResource {
     }
 
     @POST
-    public Response createMessage(Message message) throws URISyntaxException {
+    public Response createMessage(@Valid Message message) throws URISyntaxException {
         int newMessageId = messageDAO.createMessage(message.getMessage());
         return Response.created(new URI("message/"+String.valueOf(newMessageId))).build();
     }
@@ -49,10 +57,20 @@ public class MessageResource {
     public Response updateMessage(
             @PathParam("id") int id,
             Message message) {
-        messageDAO.updateMessage(id, message.getMessage());
-        return Response
-                .ok(message)
-                .build();
+        Set<ConstraintViolation<Message>> violations = validator.validate(message);
+        if (violations.isEmpty()) {
+            messageDAO.updateMessage(id, message.getMessage());
+            return Response
+                    .ok(message)
+                    .build();
+        } else {
+            List<String> validationMessages = new ArrayList<>();
+            for (ConstraintViolation<Message> violation : violations) {
+                validationMessages.add(violation.getPropertyPath().toString() + ": " + violation.getMessage());
+            }
+            return Response.status(Response.Status.BAD_REQUEST).entity(validationMessages).build();
+        }
+
     }
 
 

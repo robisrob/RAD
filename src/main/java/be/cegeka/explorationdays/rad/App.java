@@ -22,6 +22,6 @@ public class App extends Application<MessagewallConfiguration>
         LOGGER.info("Method App#run() called");
         final DBIFactory factory = new DBIFactory();
         final DBI jdbi = factory.build(environment, configuration.getDatabase(), "mysql");
-        environment.jersey().register(new MessageResource(jdbi));
+        environment.jersey().register(new MessageResource(jdbi, environment.getValidator()));
     }
 }
