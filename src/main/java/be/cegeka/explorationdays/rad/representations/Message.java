@@ -32,6 +32,6 @@ public class Message {
     @JsonIgnore
     @ValidationMethod(message="Message should not start with r")
     public boolean isValidMessage() {
-        return message.startsWith("r");
+        return !message.startsWith("r");
     }
 }

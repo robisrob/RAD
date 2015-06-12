@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Path("/message")
 @Produces(MediaType.APPLICATION_JSON)
@@ -33,7 +34,7 @@ public class MessageResource {
     @Path("/{id}")
     public Response getMessage(@PathParam("id") int id,@Auth Boolean isAuthenticated) {
         Message message = messageDAO.getMessageById(id);
-        return Response
+        return message == null ? Response.noContent().build(): Response
                 .ok(message)
                 .build();
     }
@@ -62,13 +63,10 @@ public class MessageResource {
         if (violations.isEmpty()) {
             messageDAO.updateMessage(id, message.getMessage());
             return Response
-                    .ok(message)
+                    .ok(new Message(id, message.getMessage()))
                     .build();
         } else {
-            List<String> validationMessages = new ArrayList<>();
-            for (ConstraintViolation<Message> violation : violations) {
-                validationMessages.add(violation.getPropertyPath().toString() + ": " + violation.getMessage());
-            }
+            List<String> validationMessages = violations.stream().map(violation -> violation.getPropertyPath().toString() + ": " + violation.getMessage()).collect(Collectors.toList());
             return Response.status(Response.Status.BAD_REQUEST).entity(validationMessages).build();
         }
 
