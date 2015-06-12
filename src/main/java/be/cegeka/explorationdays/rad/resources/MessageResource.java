@@ -2,6 +2,7 @@ package be.cegeka.explorationdays.rad.resources;
 
 import be.cegeka.explorationdays.rad.dao.MessageDAO;
 import be.cegeka.explorationdays.rad.representations.Message;
+import io.dropwizard.auth.Auth;
 import org.skife.jdbi.v2.DBI;
 
 import javax.validation.ConstraintViolation;
@@ -30,7 +31,7 @@ public class MessageResource {
 
     @GET
     @Path("/{id}")
-    public Response getMessage(@PathParam("id") int id) {
+    public Response getMessage(@PathParam("id") int id,@Auth Boolean isAuthenticated) {
         Message message = messageDAO.getMessageById(id);
         return Response
                 .ok(message)
@@ -38,14 +39,14 @@ public class MessageResource {
     }
 
     @POST
-    public Response createMessage(@Valid Message message) throws URISyntaxException {
+    public Response createMessage(@Valid Message message, @Auth Boolean isAuthenticated) throws URISyntaxException {
         int newMessageId = messageDAO.createMessage(message.getMessage());
         return Response.created(new URI("message/"+String.valueOf(newMessageId))).build();
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deleteMessage(@PathParam("id") int id) {
+    public Response deleteMessage(@PathParam("id") int id, @Auth Boolean isAuthenticated) {
         messageDAO.deleteMessage(id);
         return Response
                 .noContent()
@@ -56,7 +57,7 @@ public class MessageResource {
     @Path("/{id}")
     public Response updateMessage(
             @PathParam("id") int id,
-            Message message) {
+            Message message, @Auth Boolean isAuthenticated) {
         Set<ConstraintViolation<Message>> violations = validator.validate(message);
         if (violations.isEmpty()) {
             messageDAO.updateMessage(id, message.getMessage());

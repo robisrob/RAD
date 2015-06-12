@@ -3,3 +3,4 @@ database:
   user: messagewalluser
   password: messagewallpassword
   url: jdbc:mysql://localhost/messagewall
+
