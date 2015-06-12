@@ -4,9 +4,6 @@ import be.cegeka.explorationdays.rad.dao.HealthCheckDAO;
 import com.codahale.metrics.health.HealthCheck;
 import org.skife.jdbi.v2.DBI;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-
 public class DatabaseHealthCheck extends HealthCheck{
 
     private final HealthCheckDAO healthCheckDAO;
