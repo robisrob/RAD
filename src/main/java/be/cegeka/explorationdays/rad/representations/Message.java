@@ -1,37 +1,51 @@
 package be.cegeka.explorationdays.rad.representations;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.dropwizard.validation.ValidationMethod;
+
+import java.util.Date;
+
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Message {
 
     private final int id;
     @NotBlank
     @Length(min=2, max=255)
-    private final String message;
+    private final String content;
+    private final Date timestamp;
 
     public Message(){
-        this(0, null);
+        this(0, null, null);
     }
 
-    public Message(int id, String message) {
-        this.id = id;
-        this.message = message;
+    public Message(int id, String content) {
+       this(id, content, null);
+    }
+    
+    public Message(int id, String content, Date timestamp) {
+    	this.id = id;
+    	this.content = content;
+    	this.timestamp = timestamp;
     }
 
     public int getId() {
         return id;
     }
 
-    public String getMessage() {
-        return message;
+    public String getContent() {
+        return content;
     }
-
-    @JsonIgnore
+    
+    public Date getTimestamp() {
+		return timestamp;
+	}
+    
+	@JsonIgnore
     @ValidationMethod(message="Message should not start with r")
     public boolean isValidMessage() {
-        return !message.startsWith("r");
+        return !content.startsWith("r");
     }
 }

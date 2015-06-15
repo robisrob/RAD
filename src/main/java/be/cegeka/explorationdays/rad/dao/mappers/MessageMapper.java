@@ -11,6 +11,6 @@ public class MessageMapper implements ResultSetMapper<Message> {
 
     @Override
     public Message map(int index, ResultSet resultSet, StatementContext statementContext) throws SQLException {
-        return new Message(resultSet.getInt("id"), resultSet.getString("message"));
+        return new Message(resultSet.getInt("id"), resultSet.getString("content"), resultSet.getDate("timestamp"));
     }
 }

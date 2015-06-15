@@ -41,7 +41,7 @@ public class MessageResource {
 
     @POST
     public Response createMessage(@Valid Message message, @Auth Boolean isAuthenticated) throws URISyntaxException {
-        int newMessageId = messageDAO.createMessage(message.getMessage());
+        int newMessageId = messageDAO.createMessage(message.getContent());
         return Response.created(new URI("message/"+String.valueOf(newMessageId))).build();
     }
 
@@ -61,9 +61,10 @@ public class MessageResource {
             Message message, @Auth Boolean isAuthenticated) {
         Set<ConstraintViolation<Message>> violations = validator.validate(message);
         if (violations.isEmpty()) {
-            messageDAO.updateMessage(id, message.getMessage());
+            messageDAO.updateMessage(id, message.getContent());
+            Message msg = messageDAO.getMessageById(id);
             return Response
-                    .ok(new Message(id, message.getMessage()))
+                    .ok(new Message(id, message.getContent(), msg.getTimestamp()))
                     .build();
         } else {
             List<String> validationMessages = violations.stream().map(violation -> violation.getPropertyPath().toString() + ": " + violation.getMessage()).collect(Collectors.toList());

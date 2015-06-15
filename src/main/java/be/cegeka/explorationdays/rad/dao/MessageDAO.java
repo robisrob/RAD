@@ -16,12 +16,11 @@ public interface MessageDAO {
 
 
     @GetGeneratedKeys
-    @SqlUpdate("insert into message (id, message) values (NULL, :message)")
-    int createMessage(@Bind("message") String message);
+    @SqlUpdate("insert into message (id, content, timestamp) values (NULL, :content, now())")
+    int createMessage(@Bind("content") String content);
 
-    @SqlUpdate("update message set message = :message where id = :id")
-            void updateMessage(@Bind("id") int id, @Bind("message")
-            String message);
+    @SqlUpdate("update message set content = :content where id = :id")
+    void updateMessage(@Bind("id") int id, @Bind("content") String content);
 
     @SqlUpdate("delete from message where id = :id")
     void deleteMessage(@Bind("id") int id);
