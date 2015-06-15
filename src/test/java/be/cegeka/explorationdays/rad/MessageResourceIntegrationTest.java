@@ -8,12 +8,15 @@ import io.dropwizard.testing.junit.DropwizardAppRule;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.List;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
+import org.assertj.core.api.Assertions;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -30,21 +33,22 @@ public class MessageResourceIntegrationTest {
 
     @Before
     public void setUp() {
-        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder()
-                .nonPreemptive().credentials("wsuser", "wspassword").build();
-        client = ClientBuilder.newClient().register(feature);
+//        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder()
+//                .nonPreemptive().credentials("wsuser", "wspassword").build();
+//        client = ClientBuilder.newClient().register(feature);
+        client = ClientBuilder.newClient();
     }
 
     @Test
     public void testCrudOperations() {
-        Response response = doPOST(new Message(0, "testMessage", NOW));
+        Response response = doPOST(new Message("testMessage"));
         assertThat(response.getStatus()).isEqualTo(CREATED.getStatusCode());
         URI responsePOSTLocation = response.getLocation();
         response = doGET(responsePOSTLocation);
         assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
         assertThat(response.readEntity(Message.class).getContent()).isEqualTo("testMessage");
 
-        response = doPUT(responsePOSTLocation, new Message(0, "updated testMessage"));
+        response = doPUT(responsePOSTLocation, new Message("updated testMessage"));
         assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
         response = doGET(responsePOSTLocation);
         assertThat(response.getStatus()).isEqualTo(OK.getStatusCode());
@@ -55,7 +59,18 @@ public class MessageResourceIntegrationTest {
         response = client.target(responsePOSTLocation).request().get();
         assertThat(response.getStatus()).isEqualTo(NO_CONTENT.getStatusCode());
     }
-
+    
+    @Test
+    public void testListMessages() {
+    	 doPOST(new Message("testMessage1"));
+    	 doPOST(new Message("testMessage2"));
+    	 
+    	List<Message> messages = client.target(String.format("http://localhost:%d/message/", RULE.getLocalPort())).request().get(new GenericType<List<Message>>() {
+ 	    });
+    	assertThat(messages.size()).isGreaterThan(1);
+    	 
+    }
+    
     private Response doDELETE(URI responsePOSTLocation) {
         return client.target(responsePOSTLocation).request().delete();
     }

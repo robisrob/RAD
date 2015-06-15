@@ -21,8 +21,8 @@ public class Message {
         this(0, null, null);
     }
 
-    public Message(int id, String content) {
-       this(id, content, null);
+    public Message(String content) {
+       this(0, content, null);
     }
     
     public Message(int id, String content, Date timestamp) {

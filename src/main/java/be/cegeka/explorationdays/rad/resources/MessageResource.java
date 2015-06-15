@@ -1,22 +1,31 @@
 package be.cegeka.explorationdays.rad.resources;
 
-import be.cegeka.explorationdays.rad.dao.MessageDAO;
-import be.cegeka.explorationdays.rad.representations.Message;
 import io.dropwizard.auth.Auth;
-import org.skife.jdbi.v2.DBI;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.Validator;
-import javax.ws.rs.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import org.skife.jdbi.v2.DBI;
+
+import be.cegeka.explorationdays.rad.dao.MessageDAO;
+import be.cegeka.explorationdays.rad.representations.Message;
 
 @Path("/message")
 @Produces(MediaType.APPLICATION_JSON)
@@ -32,22 +41,28 @@ public class MessageResource {
 
     @GET
     @Path("/{id}")
-    public Response getMessage(@PathParam("id") int id,@Auth Boolean isAuthenticated) {
+    public Response getMessage(@PathParam("id") int id) {
         Message message = messageDAO.getMessageById(id);
         return message == null ? Response.noContent().build(): Response
                 .ok(message)
                 .build();
     }
+    
+    @GET
+    public Response getMessages() {
+    	GenericEntity<List<Message>> messages = new GenericEntity<List<Message>>(messageDAO.getMessages()){};
+    	return messages.getEntity().isEmpty() ? Response.noContent().build(): Response.ok(messages).build();
+    }
 
     @POST
-    public Response createMessage(@Valid Message message, @Auth Boolean isAuthenticated) throws URISyntaxException {
+    public Response createMessage(@Valid Message message) throws URISyntaxException {
         int newMessageId = messageDAO.createMessage(message.getContent());
         return Response.created(new URI("message/"+String.valueOf(newMessageId))).build();
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deleteMessage(@PathParam("id") int id, @Auth Boolean isAuthenticated) {
+    public Response deleteMessage(@PathParam("id") int id) {
         messageDAO.deleteMessage(id);
         return Response
                 .noContent()
@@ -58,7 +73,7 @@ public class MessageResource {
     @Path("/{id}")
     public Response updateMessage(
             @PathParam("id") int id,
-            Message message, @Auth Boolean isAuthenticated) {
+            Message message) {
         Set<ConstraintViolation<Message>> violations = validator.validate(message);
         if (violations.isEmpty()) {
             messageDAO.updateMessage(id, message.getContent());
