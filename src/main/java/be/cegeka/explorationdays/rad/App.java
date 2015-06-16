@@ -16,6 +16,8 @@ import javax.servlet.FilterRegistration;
 import javax.servlet.ServletRegistration;
 
 import org.atmosphere.cpr.ApplicationConfig;
+import org.atmosphere.cpr.AtmosphereResourceSession;
+import org.atmosphere.cpr.AtmosphereResourceSessionFactory;
 import org.atmosphere.cpr.AtmosphereServlet;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.skife.jdbi.v2.DBI;
@@ -41,6 +43,7 @@ public class App extends Application<MessagewallConfiguration>
         final DBIFactory factory = new DBIFactory();
         DataSourceFactory database = configuration.getDatabase();
         final DBI jdbi = factory.build(environment, database, "mysql");
+        DBILookup.getInstance().setDBI(jdbi);
         CachingAuthenticator<BasicCredentials, Boolean> authenticator = new CachingAuthenticator<>(environment.metrics(), new MessageAuthenticator(jdbi), configuration.getAuthenticationCachePolicy());
         environment.jersey().register(new MessageResource(jdbi, environment.getValidator()));
         environment.jersey().register(AuthFactory.binder(new BasicAuthFactory<>(authenticator, "Webservice Authentication", Boolean.class)));
@@ -61,6 +64,8 @@ public class App extends Application<MessagewallConfiguration>
         servlet.framework().addInitParameter(ApplicationConfig.WEBSOCKET_SUPPORT, "true");
          
         ServletRegistration.Dynamic servletHolder = environment.servlets().addServlet("MessageSocket", servlet);
+        
         servletHolder.addMapping("/socket/*");
     }
+
 }
