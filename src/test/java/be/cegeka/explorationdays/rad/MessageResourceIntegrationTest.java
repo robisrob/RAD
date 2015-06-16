@@ -1,42 +1,35 @@
 package be.cegeka.explorationdays.rad;
 
-import static javax.ws.rs.core.Response.Status.CREATED;
-import static javax.ws.rs.core.Response.Status.NO_CONTENT;
-import static javax.ws.rs.core.Response.Status.OK;
-import static org.assertj.core.api.Assertions.assertThat;
+import be.cegeka.explorationdays.rad.representations.Message;
 import io.dropwizard.testing.junit.DropwizardAppRule;
-
-import java.net.URI;
-import java.util.Date;
-import java.util.List;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.Date;
+import java.util.List;
 
-import org.assertj.core.api.Assertions;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-
-import be.cegeka.explorationdays.rad.representations.Message;
+import static javax.ws.rs.core.Response.Status.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MessageResourceIntegrationTest {
 
-    private static final Date NOW = new Date();
-	@ClassRule
+    @ClassRule
     public static final DropwizardAppRule<MessagewallConfiguration> RULE = new DropwizardAppRule<>(App.class, "config.yaml");
     private Client client;
 
     @Before
     public void setUp() {
-//        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder()
-//                .nonPreemptive().credentials("wsuser", "wspassword").build();
-//        client = ClientBuilder.newClient().register(feature);
-        client = ClientBuilder.newClient();
+        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder()
+                .nonPreemptive().credentials("wsuser", "wspassword").build();
+        client = ClientBuilder.newClient().register(feature);
     }
 
     @Test
@@ -59,18 +52,18 @@ public class MessageResourceIntegrationTest {
         response = client.target(responsePOSTLocation).request().get();
         assertThat(response.getStatus()).isEqualTo(NO_CONTENT.getStatusCode());
     }
-    
+
     @Test
     public void testListMessages() {
-    	 doPOST(new Message("testMessage1"));
-    	 doPOST(new Message("testMessage2"));
-    	 
-    	List<Message> messages = client.target(String.format("http://localhost:%d/message/", RULE.getLocalPort())).request().get(new GenericType<List<Message>>() {
- 	    });
-    	assertThat(messages.size()).isGreaterThan(1);
-    	 
+        doPOST(new Message("testMessage1"));
+        doPOST(new Message("testMessage2"));
+
+        List<Message> messages = client.target(String.format("http://localhost:%d/message/", RULE.getLocalPort())).request().get(new GenericType<List<Message>>() {
+        });
+        assertThat(messages.size()).isGreaterThan(1);
+
     }
-    
+
     private Response doDELETE(URI responsePOSTLocation) {
         return client.target(responsePOSTLocation).request().delete();
     }
