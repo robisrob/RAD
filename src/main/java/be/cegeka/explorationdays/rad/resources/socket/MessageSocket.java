@@ -14,6 +14,8 @@ import org.atmosphere.interceptor.BroadcastOnPostAtmosphereInterceptor;
 import org.atmosphere.interceptor.HeartbeatInterceptor;
 import org.eclipse.jetty.server.Authentication.User;
 
+import be.cegeka.explorationdays.rad.representations.Message;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Path("/socket/")
@@ -29,6 +31,7 @@ public class MessageSocket extends OnMessage<String> {
  
     @Override
     public void onMessage(AtmosphereResponse response, String message) throws IOException {
-        response.write(mapper.writeValueAsString(mapper.readValue(message, User.class)));
+        response.write(message);
+//        response.write(mapper.writeValueAsString(mapper.readValue(message, String.class)));
     }
 }
