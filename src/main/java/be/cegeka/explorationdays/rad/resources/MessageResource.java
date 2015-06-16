@@ -55,8 +55,8 @@ public class MessageResource {
     }
 
     @POST
-    public Response createMessage(@Valid Message message) throws URISyntaxException {
-        int newMessageId = messageDAO.createMessage(message.getContent());
+    public Response createMessage(String content) throws URISyntaxException {
+        int newMessageId = messageDAO.createMessage(content);
         return Response.created(new URI("message/"+String.valueOf(newMessageId))).build();
     }
 
