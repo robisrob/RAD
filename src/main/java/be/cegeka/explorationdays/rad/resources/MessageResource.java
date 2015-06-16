@@ -49,9 +49,9 @@ public class MessageResource {
     }
     
     @GET
-    public Response getMessages() {
+    public Response getMessages(@Auth Boolean isAuthenticated) {
     	GenericEntity<List<Message>> messages = new GenericEntity<List<Message>>(messageDAO.getMessages()){};
-    	return messages.getEntity().isEmpty() ? Response.noContent().build(): Response.ok(messages).build();
+    	return messages.getEntity().isEmpty() ? Response.noContent().build() : Response.ok(messages).build();
     }
 
     @POST
