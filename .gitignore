@@ -6,3 +6,9 @@ build
 *~
 *target
 dependency-reduced-pom.xml
+/.classpath
+/.project
+/.settings/org.eclipse.core.resources.prefs
+/.settings/org.eclipse.jdt.core.prefs
+/.settings/org.eclipse.m2e.core.prefs
+/npm-debug.log
